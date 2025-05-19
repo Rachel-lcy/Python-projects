@@ -22,7 +22,11 @@ while True:
     print('Retrieving', url)
     uh = urllib.request.urlopen(url, context=ctx)
     data = uh.read().decode()
+    # UTF-8 data from 字节（bytes）decode for 字符串（str）。
     print('Retrieved', len(data), 'characters', data[:20].replace('\n', ' '))
+
+    #json.loads() stands for "load string".
+    #It takes a JSON-formatted string and converts it into a Python object, usually a dictionary.
 
     try:
         js = json.loads(data)
@@ -46,7 +50,3 @@ while True:
     print('lat', lat, 'lon', lon)
     location = js['features'][0]['properties']['formatted']
     print(location)
-
-
-
-
