@@ -18,8 +18,7 @@ while True:
 
     # Encode address into URL parameters
     address = address.strip()
-    parms = dict()
-    parms['q'] = address
+    parms = {'q': address}
     url = serviceurl + urllib.parse.urlencode(parms)
 
     print('Retrieving', url)
