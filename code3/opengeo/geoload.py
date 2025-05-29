@@ -83,4 +83,3 @@ if nofound > 0:
     print('Number of features for which the location could not be found:', nofound)
 
 print("Run geodump.py to read the data from the database so you can vizualize it on a map.")
-
