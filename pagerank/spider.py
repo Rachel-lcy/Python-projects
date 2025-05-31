@@ -4,6 +4,7 @@ import ssl
 from urllib.parse import urljoin
 from urllib.parse import urlparse
 from urllib.request import urlopen
+from urllib.request import Request
 from bs4 import BeautifulSoup
 
 # Ignore SSL certificate errors
@@ -24,13 +25,13 @@ cur.execute('''CREATE TABLE IF NOT EXISTS Links
 cur.execute('''CREATE TABLE IF NOT EXISTS Webs (url TEXT UNIQUE)''')
 
 # Check to see if we are already in progress...
-cur.execute('SELECT id,url FROM Pages WHERE html is NULL and error is NULL ORDER BY RANDOM() LIMIT 1')
+cur.execute('SELECT id, url FROM Pages WHERE html IS NULL ORDER BY RANDOM() LIMIT 1')
 row = cur.fetchone()
 if row is not None:
     print("Restarting existing crawl.  Remove spider.sqlite to start a fresh crawl.")
 else :
     starturl = input('Enter web url or enter: ')
-    if ( len(starturl) < 1 ) : starturl = 'http://www.dr-chuck.com/'
+    if ( len(starturl) < 1 ) : starturl = 'https://www.dr-chuck.com/'
     if ( starturl.endswith('/') ) : starturl = starturl[:-1]
     web = starturl
     if ( starturl.endswith('.htm') or starturl.endswith('.html') ) :
@@ -74,14 +75,15 @@ while True:
     # If we are retrieving this page, there should be no links from it
     cur.execute('DELETE from Links WHERE from_id=?', (fromid, ) )
     try:
-        document = urlopen(url, context=ctx)
+        req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        document = urlopen(req, context=ctx)
 
         html = document.read()
         if document.getcode() != 200 :
             print("Error on page: ",document.getcode())
             cur.execute('UPDATE Pages SET error=? WHERE url=?', (document.getcode(), url) )
 
-        if 'text/html' != document.info().get_content_type() :
+        if 'text/html' not in document.info().get_content_type() :
             print("Ignore non text/html page")
             cur.execute('DELETE FROM Pages WHERE url=?', ( url, ) )
             conn.commit()
